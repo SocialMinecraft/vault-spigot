@@ -297,7 +297,7 @@ public class VaultUI implements Listener {
                     //enchants.set(entry.getKey().getKey().getKey(), entry.getValue());
                     builder.addEnchants(
                       VaultItemEnchantment.newBuilder()
-                              .setName(entry.getKey().toString())
+                              .setName(entry.getKey().getKey().getKey().toString())
                               .setLevel(entry.getValue())
                     );
                 }
