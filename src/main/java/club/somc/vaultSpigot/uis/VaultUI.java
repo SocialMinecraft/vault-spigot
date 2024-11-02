@@ -75,10 +75,13 @@ public class VaultUI implements Listener {
             return;
         }
 
-        Inventory inventory = Bukkit.createInventory(player,  resp.getVault().getSlotsCount(), name);
+        int size = resp.getVault().getSlotsCount();
+        size = (int) (Math.ceil(size / 9.0) * 9); // this should never happen as the server should return in a multiple of 9.
+        size = Math.min(size, 54);
+        Inventory inventory = Bukkit.createInventory(player,  size, name);
 
         for (int i = 0; i < resp.getVault().getSlotsCount(); i++) {
-            VaultSlot slot = resp.getVault().getSlots(0);
+            VaultSlot slot = resp.getVault().getSlots(i);
 
             if (slot.getIsLocked()) {
                 inventory.setItem(i, createLock());
@@ -90,6 +93,9 @@ public class VaultUI implements Listener {
                 // available.
                 inventory.setItem(i, null);
             }
+        }
+        for (int i = resp.getVault().getSlotsCount(); i < size; i++) {
+            inventory.setItem(i, createLock());
         }
 
         player.openInventory(inventory);
