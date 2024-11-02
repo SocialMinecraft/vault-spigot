@@ -157,7 +157,13 @@ public class VaultUI implements Listener {
             player.sendMessage("Cursor " + event.getCursor().getType().name());*/
 
         if (isTop && cursorEmpty && event.getView().getItem(event.getRawSlot()).getType() != Material.AIR) {
-            player.sendMessage(ChatColor.GREEN + "Withdraw " + event.getCurrentItem().getType().name());
+            if (!withdraw(player, event.getRawSlot())) {
+                event.setCancelled(true);
+                player.closeInventory();
+                return;
+            } else {
+                player.sendMessage(ChatColor.GREEN + "Withdraw " + event.getCurrentItem().getType().name());
+            }
         } else if (isTop && !cursorEmpty) {
             if (!deposit(player, event.getRawSlot(), event.getCursor())) {
                 event.setCancelled(true);
@@ -203,6 +209,44 @@ public class VaultUI implements Listener {
             resp = StoreVaultItemResponse.parseFrom(msg.getData());
         } catch (InvalidProtocolBufferException e) {
             player.sendMessage(ChatColor.RED + "Error storing item.");
+            plugin.getLogger().warning(e.getMessage());
+            return false;
+        }
+
+        if (resp.hasError()) {
+            player.sendMessage(ChatColor.RED + resp.getError());
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean withdraw(Player player, int slot) {
+        RemoveVaultItem req = RemoveVaultItem.newBuilder()
+                .setUuid(player.getUniqueId().toString())
+                .setSlot(slot)
+                .build();
+
+        Message msg;
+        try {
+            msg = plugin.nc.request("vault.remove", req.toByteArray(), Duration.ofMillis(300));
+        } catch (InterruptedException e) {
+            player.sendMessage(ChatColor.RED + "Error removing item.");
+            plugin.getLogger().warning(e.getMessage());
+            return false;
+        }
+
+        if (msg == null) {
+            player.sendMessage(ChatColor.RED + "Error removing item.");
+            plugin.getLogger().warning("Removing Item, null message");
+            return false;
+        }
+
+        RemoveVaultItemResponse resp;
+        try {
+            resp = RemoveVaultItemResponse.parseFrom(msg.getData());
+        } catch (InvalidProtocolBufferException e) {
+            player.sendMessage(ChatColor.RED + "Error removing item.");
             plugin.getLogger().warning(e.getMessage());
             return false;
         }
