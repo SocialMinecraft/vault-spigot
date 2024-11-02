@@ -1,5 +1,6 @@
 package club.somc.vaultSpigot;
 
+import club.somc.vaultSpigot.uis.VaultUI;
 import io.nats.client.Connection;
 import io.nats.client.Nats;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,6 +24,7 @@ public final class VaultSpigot extends JavaPlugin {
             throw new RuntimeException(e);
         }
 
+        getServer().getPluginManager().registerEvents(new VaultUI(this), this);
     }
 
     @Override
