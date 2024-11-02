@@ -12,6 +12,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.DragType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -104,21 +105,57 @@ public class VaultUI implements Listener {
     @EventHandler
     public void onDrag(InventoryDragEvent event) {
         if (!event.getView().getTitle().startsWith("Vault")) return;
-        Player player = (Player) event.getWhoClicked();
-
         event.setCancelled(true);
+        return;
+
+        /*Player player = (Player) event.getWhoClicked();
+        player.sendMessage(ChatColor.RED + "Vault drag started.");
 
         ItemStack draggedItem = event.getOldCursor();
         ItemStack newItem = event.getCursor();
 
         Inventory top = event.getView().getTopInventory();
-        Inventory bottom = event.getView().getBottomInventory();
+        Inventory bottom = event.getView().getBottomInventory();*/
     }
 
     @EventHandler
     public void onItemClick(InventoryClickEvent event) {
         if (!event.getView().getTitle().startsWith("Vault")) return;
-        event.setCancelled(true);
+        if (isSpecial(event.getCurrentItem()) || isSpecial(event.getCursor())) {
+            event.setCancelled(true);
+            return;
+        }
+        if (event.getClick() != ClickType.LEFT) {
+            event.setCancelled(true);
+            return;
+        }
+        if (event.getRawSlot() < 0 ) {
+            event.setCancelled(true);
+            return;
+        }
+        boolean isTop = event.getRawSlot() < event.getView().getTopInventory().getSize();
+        boolean cursorEmpty = event.getCursor() == null || event.getCursor().getType() == Material.AIR;
+
+        Player player = (Player) event.getWhoClicked();
+        /*if (event.getCurrentItem() != null)
+            player.sendMessage("Current " + event.getCurrentItem().getType().name());
+        if (event.getCursor() != null)
+            player.sendMessage("Cursor " + event.getCursor().getType().name());*/
+
+        if (isTop && cursorEmpty && event.getView().getItem(event.getRawSlot()).getType() != Material.AIR) {
+            player.sendMessage(ChatColor.GREEN + "Withdraw " + event.getCurrentItem().getType().name());
+        } else if (isTop && !cursorEmpty) {
+            player.sendMessage(ChatColor.GREEN + "Deposit " + event.getCursor().getType().name());
+        }
+
+
+
+        //event.setCancelled(true);
+
+
+        //player.sendMessage(isTop ? "top" : "bottom");
+        //player.sendMessage("slot" + event.getRawSlot());
+        //player.sendMessage(event.getClick().toString());
     }
 
     public static ItemStack deserializeItem(VaultItem vItem) {
@@ -254,6 +291,21 @@ public class VaultUI implements Listener {
         item.setItemMeta(meta);
 
         return item;
+    }
+
+    public boolean isSpecial(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) {
+            return false;
+        }
+
+        if (!item.hasItemMeta()) {
+            return false;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+
+        return (meta.getPersistentDataContainer().has(cooldownKey, PersistentDataType.BYTE) ||
+                meta.getPersistentDataContainer().has(lockKey, PersistentDataType.BYTE));
     }
 
     public ItemStack createLock() {
