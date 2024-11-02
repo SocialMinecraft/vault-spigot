@@ -35,6 +35,7 @@ public class VaultUI implements Listener {
     private final VaultSpigot plugin;
     private static final NamespacedKey cooldownKey = new NamespacedKey("vault", "cooldown");
     private static final NamespacedKey lockKey = new NamespacedKey("vault", "lock");
+    private static final NamespacedKey brokenKey = new NamespacedKey("vault", "broken");
 
 
     public VaultUI(VaultSpigot plugin) {
@@ -122,6 +123,10 @@ public class VaultUI implements Listener {
     public void onItemClick(InventoryClickEvent event) {
         if (!event.getView().getTitle().startsWith("Vault")) return;
         if (isSpecial(event.getCurrentItem()) || isSpecial(event.getCursor())) {
+            event.setCancelled(true);
+            return;
+        }
+        if (overStackSize(event.getCurrentItem())) {
             event.setCancelled(true);
             return;
         }
@@ -293,19 +298,36 @@ public class VaultUI implements Listener {
         return item;
     }
 
-    public boolean isSpecial(ItemStack item) {
-        if (item == null || item.getType() == Material.AIR) {
-            return false;
+    public ItemStack createBroken() {
+        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) item.getItemMeta();
+
+        PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
+        PlayerTextures textures = profile.getTextures();
+
+        URL urlObject;
+        try {
+            String decoded = new String(java.util.Base64.getDecoder().decode("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWU3NzAwMDk2YjVhMmE4NzM4NmQ2MjA1YjRkZGNjMTRmZDMzY2YyNjkzNjJmYTY4OTM0OTk0MzFjZTc3YmY5In19fQ=="));
+            String url = decoded.substring(decoded.indexOf("http"), decoded.lastIndexOf("\""));
+            urlObject = new URL(url);
+        } catch (Exception e) {
+            plugin.getLogger().warning(e.getMessage());
+            return null;
         }
 
-        if (!item.hasItemMeta()) {
-            return false;
-        }
+        textures.setSkin(urlObject);
+        profile.setTextures(textures);
+        meta.setOwnerProfile(profile);
+        meta.setDisplayName("Item Broken");
 
-        ItemMeta meta = item.getItemMeta();
+        meta.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 
-        return (meta.getPersistentDataContainer().has(cooldownKey, PersistentDataType.BYTE) ||
-                meta.getPersistentDataContainer().has(lockKey, PersistentDataType.BYTE));
+        meta.getPersistentDataContainer().set(brokenKey, PersistentDataType.BYTE, (byte)1);
+
+        item.setItemMeta(meta);
+
+        return item;
     }
 
     public ItemStack createLock() {
@@ -338,5 +360,28 @@ public class VaultUI implements Listener {
         item.setItemMeta(meta);
 
         return item;
+    }
+
+    public boolean isSpecial(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) {
+            return false;
+        }
+
+        if (!item.hasItemMeta()) {
+            return false;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+
+        return (meta.getPersistentDataContainer().has(cooldownKey, PersistentDataType.BYTE) ||
+                meta.getPersistentDataContainer().has(lockKey, PersistentDataType.BYTE) ||
+                meta.getPersistentDataContainer().has(brokenKey, PersistentDataType.BYTE));
+    }
+
+    public boolean overStackSize(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) {
+            return false;
+        }
+        return item.getAmount() > 1;
     }
 }
