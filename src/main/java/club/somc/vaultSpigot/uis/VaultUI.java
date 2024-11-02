@@ -90,7 +90,11 @@ public class VaultUI implements Listener {
             } else if (slot.getCooldownSeconds() > 0) {
                 inventory.setItem(i, createCooldown(slot.getCooldownSeconds()));
             } else if (slot.hasItem()) {
-                inventory.setItem(i, deserializeItem(slot.getItem()));
+                try {
+                    inventory.setItem(i, deserializeItem(slot.getItem()));
+                } catch (Exception e) {
+                    inventory.setItem(i, createBroken());
+                }
             } else {
                 // available.
                 inventory.setItem(i, null);
