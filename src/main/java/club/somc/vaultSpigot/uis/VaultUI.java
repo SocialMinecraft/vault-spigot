@@ -169,7 +169,9 @@ public class VaultUI implements Listener {
         //player.sendMessage(event.getClick().toString());
     }
 
-    public static ItemStack deserializeItem(VaultItem vItem) {
+
+
+    private static ItemStack deserializeItem(VaultItem vItem) {
         Material material = Material.valueOf(vItem.getType());
 
         ItemStack item = new ItemStack(material);
@@ -222,7 +224,7 @@ public class VaultUI implements Listener {
         return item;
     }
 
-    public static VaultItem serializeItem(ItemStack item) {
+    private static VaultItem serializeItem(ItemStack item) {
 
 
         VaultItem.Builder builder = VaultItem.newBuilder();
@@ -272,7 +274,7 @@ public class VaultUI implements Listener {
         return builder.build();
     }
 
-    public ItemStack createCooldown(int seconds) {
+    private ItemStack createCooldown(int seconds) {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
 
@@ -304,7 +306,7 @@ public class VaultUI implements Listener {
         return item;
     }
 
-    public ItemStack createBroken() {
+    private ItemStack createBroken() {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
 
@@ -336,7 +338,7 @@ public class VaultUI implements Listener {
         return item;
     }
 
-    public ItemStack createLock() {
+    private ItemStack createLock() {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
 
@@ -368,7 +370,7 @@ public class VaultUI implements Listener {
         return item;
     }
 
-    public boolean isSpecial(ItemStack item) {
+    private boolean isSpecial(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) {
             return false;
         }
@@ -384,7 +386,7 @@ public class VaultUI implements Listener {
                 meta.getPersistentDataContainer().has(brokenKey, PersistentDataType.BYTE));
     }
 
-    public boolean isForbidden(ItemStack item) {
+    private boolean isForbidden(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) {
             return false;
         }
@@ -399,7 +401,7 @@ public class VaultUI implements Listener {
         }
     }
 
-    public boolean overStackSize(ItemStack item) {
+    private boolean overStackSize(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) {
             return false;
         }
