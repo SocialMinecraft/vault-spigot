@@ -1,5 +1,6 @@
 package club.somc.vaultSpigot;
 
+import club.somc.vaultSpigot.commands.VaultCommand;
 import club.somc.vaultSpigot.uis.VaultUI;
 import io.nats.client.Connection;
 import io.nats.client.Nats;
@@ -24,7 +25,11 @@ public final class VaultSpigot extends JavaPlugin {
             throw new RuntimeException(e);
         }
 
-        getServer().getPluginManager().registerEvents(new VaultUI(this), this);
+        VaultUI vaultUI = new VaultUI(this);
+        getServer().getPluginManager().registerEvents(vaultUI, this);
+
+        VaultCommand vaultCommand = new VaultCommand(vaultUI);
+        getCommand("vault").setExecutor(vaultCommand);
     }
 
     @Override

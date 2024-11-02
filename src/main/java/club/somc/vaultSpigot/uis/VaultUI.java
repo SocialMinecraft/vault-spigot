@@ -56,6 +56,11 @@ public class VaultUI implements Listener {
             return;
         }
 
+        if (msg == null) {
+            player.sendMessage(ChatColor.RED + "Error connecting to vault.");
+            return;
+        }
+
         GetVaultResponse resp;
         try {
             resp = GetVaultResponse.parseFrom(msg.getData());

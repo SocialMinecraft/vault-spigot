@@ -2,3 +2,7 @@ name: vault-spigot
 version: '1.0.0'
 main: club.somc.vaultSpigot.VaultSpigot
 api-version: '1.20'
+commands:
+  vault:
+    description: Open a vault to move items between worlds.
+    usage: /<command>
