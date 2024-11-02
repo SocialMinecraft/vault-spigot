@@ -134,6 +134,10 @@ public class VaultUI implements Listener {
             event.setCancelled(true);
             return;
         }
+        if (isForbidden(event.getCurrentItem())) {
+            event.setCancelled(true);
+            return;
+        }
         if (event.getClick() != ClickType.LEFT) {
             event.setCancelled(true);
             return;
@@ -156,8 +160,6 @@ public class VaultUI implements Listener {
         } else if (isTop && !cursorEmpty) {
             player.sendMessage(ChatColor.GREEN + "Deposit " + event.getCursor().getType().name());
         }
-
-
 
         //event.setCancelled(true);
 
@@ -380,6 +382,21 @@ public class VaultUI implements Listener {
         return (meta.getPersistentDataContainer().has(cooldownKey, PersistentDataType.BYTE) ||
                 meta.getPersistentDataContainer().has(lockKey, PersistentDataType.BYTE) ||
                 meta.getPersistentDataContainer().has(brokenKey, PersistentDataType.BYTE));
+    }
+
+    public boolean isForbidden(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) {
+            return false;
+        }
+
+        Material material = item.getType();
+        switch (material) {
+            case Material.SHULKER_BOX:
+            case Material.BUNDLE:
+                return true;
+            default:
+                return false;
+        }
     }
 
     public boolean overStackSize(ItemStack item) {
