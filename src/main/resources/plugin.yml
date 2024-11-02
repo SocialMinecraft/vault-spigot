@@ -1,0 +1,4 @@
+name: vault-spigot
+version: '1.0.0'
+main: club.somc.vaultSpigot.VaultSpigot
+api-version: '1.20'
