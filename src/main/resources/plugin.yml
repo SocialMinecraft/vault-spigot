@@ -6,3 +6,4 @@ commands:
   vault:
     description: Open a vault to move items between worlds.
     usage: /<command>
+    permission: vault.command
