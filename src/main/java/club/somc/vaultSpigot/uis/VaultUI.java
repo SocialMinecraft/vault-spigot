@@ -60,6 +60,7 @@ public class VaultUI implements Listener {
 
         if (msg == null) {
             player.sendMessage(ChatColor.RED + "Error connecting to vault.");
+            plugin.getLogger().warning("Vault message null.");
             return;
         }
 
@@ -158,7 +159,13 @@ public class VaultUI implements Listener {
         if (isTop && cursorEmpty && event.getView().getItem(event.getRawSlot()).getType() != Material.AIR) {
             player.sendMessage(ChatColor.GREEN + "Withdraw " + event.getCurrentItem().getType().name());
         } else if (isTop && !cursorEmpty) {
-            player.sendMessage(ChatColor.GREEN + "Deposit " + event.getCursor().getType().name());
+            if (!deposit(player, event.getRawSlot(), event.getCursor())) {
+                event.setCancelled(true);
+                player.closeInventory();
+                return;
+            } else {
+                player.sendMessage(ChatColor.GREEN + "Deposit " + event.getCursor().getType().name());
+            }
         }
 
         //event.setCancelled(true);
@@ -169,6 +176,44 @@ public class VaultUI implements Listener {
         //player.sendMessage(event.getClick().toString());
     }
 
+    private boolean deposit(Player player, int slot, ItemStack item) {
+        StoreVaultItem req = StoreVaultItem.newBuilder()
+                .setUuid(player.getUniqueId().toString())
+                .setSlot(slot)
+                .setItem(serializeItem(item))
+                .build();
+
+        Message msg;
+        try {
+            msg = plugin.nc.request("vault.store", req.toByteArray(), Duration.ofMillis(300));
+        } catch (InterruptedException e) {
+            player.sendMessage(ChatColor.RED + "Error storing item.");
+            plugin.getLogger().warning(e.getMessage());
+            return false;
+        }
+
+        if (msg == null) {
+            player.sendMessage(ChatColor.RED + "Error storing item.");
+            plugin.getLogger().warning("Storing Item, null message");
+            return false;
+        }
+
+        StoreVaultItemResponse resp;
+        try {
+            resp = StoreVaultItemResponse.parseFrom(msg.getData());
+        } catch (InvalidProtocolBufferException e) {
+            player.sendMessage(ChatColor.RED + "Error storing item.");
+            plugin.getLogger().warning(e.getMessage());
+            return false;
+        }
+
+        if (resp.hasError()) {
+            player.sendMessage(ChatColor.RED + resp.getError());
+            return false;
+        }
+
+        return true;
+    }
 
 
     private static ItemStack deserializeItem(VaultItem vItem) {
