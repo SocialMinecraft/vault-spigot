@@ -6,7 +6,7 @@
 
     <groupId>club.somc</groupId>
     <artifactId>vault-spigot</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>vault-spigot</name>
@@ -23,7 +23,7 @@
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
-                <version>0.5.0</version>
+                <version>0.6.1</version>
                 <extensions>true</extensions>
                 <configuration>
                     <protoSourceRoot>${project.basedir}/proto</protoSourceRoot>
@@ -33,7 +33,7 @@
                         ${project.build.directory}/protoc-temp
                     </temporaryProtoFileDirectory>
                     <protocExecutable>
-                        protoc-3-25
+                        protoc-26-1
                     </protocExecutable>
                 </configuration>
                 <executions>
@@ -102,7 +102,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.25.3</version>
+            <version>4.26.1</version>
         </dependency>
     </dependencies>
 
